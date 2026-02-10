@@ -1,6 +1,14 @@
 const generatePasswordButton = document.querySelector("#generate-password");
 const generatedPasswordElement = document.querySelector("#generated-password");
 
+const openCloseGeneratorBtn = document.querySelector("#open-generate-password");
+const generatePasswordContainer = document.querySelector("#generate-options");
+const lengthInput = document.querySelector("#length");
+const lettersInput = document.querySelector("#letters");
+const numbersInput = document.querySelector("#numbers");
+const symbolsInput = document.querySelector("#symbols");
+const CopyPasswordBtn = document.querySelector("#copy-password");
+
 // funções
 const getLetterLowerCase = () => {
   return String.fromCharCode(Math.floor(Math.random() * 26) + 97);
@@ -32,15 +40,22 @@ const generatePassword = (
   getSymbol,
 ) => {
   let password = "";
+  const passwordLength = +lengthInput.value;
+  const generators = [];
 
-  const passwordLength = 10;
+  if (lettersInput.checked) {
+    generators.push(getLetterLowerCase, getLetterUpperCase);
+  }
 
-  const generators = [
-    getLetterLowerCase,
-    getLetterUpperCase,
-    getNumber,
-    getSymbol,
-  ];
+  if (numbersInput.checked) {
+    generators.push(getNumber);
+  }
+
+  if (symbolsInput.checked) {
+    generators.push(getSymbol);
+  }
+
+  if (generators.length === 0) return;
 
   for (i = 0; i < passwordLength; i = i + generators.length) {
     generators.forEach(() => {
@@ -56,13 +71,29 @@ const generatePassword = (
 };
 
 // eventos
-generatePasswordButton.addEventListener("click", (e) => {
-  e.preventDefault();
-
+generatePasswordButton.addEventListener("click", () => {
   generatePassword(
     getLetterLowerCase,
     getLetterUpperCase,
     getNumber,
     getSymbol,
   );
+});
+
+openCloseGeneratorBtn.addEventListener("click", () => {
+  generatePasswordContainer.classList.toggle("hide");
+});
+
+CopyPasswordBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  const password = generatedPasswordElement.querySelector("h4").innerText;
+
+  navigator.clipboard.writeText(password).then(() => {
+    CopyPasswordBtn.innerText = "Senha copiada com sucesso!";
+
+    setTimeout(() => {
+      CopyPasswordBtn.innerText = "Copiar";
+    }, 1000);
+  });
 });
